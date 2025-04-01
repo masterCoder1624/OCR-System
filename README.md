@@ -84,4 +84,8 @@ ocr-system/
 
 ## License
 
+<<<<<<< HEAD
 This project is licensed under the MIT License - see the LICENSE file for details. 
+=======
+This project is licensed under the MIT License - see the LICENSE file for details. 
+>>>>>>> 53400004f190398810683d91a66ac0f572710dae
