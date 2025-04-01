@@ -1,0 +1,10 @@
+flask==2.0.1
+torch>=2.0.0
+torchvision>=0.15.0
+numpy>=1.21.2
+Pillow>=8.3.2
+PyMuPDF>=1.18.14
+albumentations>=1.0.3
+opencv-python>=4.5.3.56
+scikit-image>=0.18.2
+tqdm>=4.62.3 
