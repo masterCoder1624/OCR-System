@@ -261,14 +261,12 @@
             const formData = new FormData();
             formData.append('file', file);
 
-            // Show loading state
             const uploadContainer = document.querySelector('.upload-container');
             const uploadIcon = uploadContainer.querySelector('.upload-icon');
             uploadIcon.src = "{{ url_for('static', filename='images/loading-icon.svg') }}";
             uploadIcon.classList.add('loading-icon');
             document.querySelector('button[type="submit"]').disabled = true;
-
-            // Hide previous results
+            
             document.getElementById('resultContainer').style.display = 'none';
             document.getElementById('errorMessage').style.display = 'none';
             document.getElementById('successMessage').style.display = 'none';
@@ -286,7 +284,7 @@
                     const resultsContent = document.getElementById('resultsContent');
                     
                     if (data.results) {
-                        // Handle multiple files from ZIP
+                        
                         data.results.forEach((result, index) => {
                             const fileResult = document.createElement('div');
                             fileResult.className = 'file-result';
@@ -296,13 +294,13 @@
                             `;
                             resultsContent.appendChild(fileResult);
                             
-                            // Update progress
+                            
                             const progress = ((index + 1) / data.results.length) * 100;
                             progressBar.style.width = `${progress}%`;
                             fileCount.textContent = `Processing file ${index + 1} of ${data.results.length}`;
                         });
                     } else {
-                        // Handle single file
+                        
                         resultsContent.innerHTML = `
                             <div class="file-result">
                                 <div class="file-text">${data.text}</div>
@@ -321,7 +319,7 @@
                 document.getElementById('errorMessage').textContent = 'An error occurred while processing the file.';
                 document.getElementById('errorMessage').style.display = 'block';
             } finally {
-                // Reset loading state
+            
                 uploadIcon.src = "{{ url_for('static', filename='images/upload-icon.svg') }}";
                 uploadIcon.classList.remove('loading-icon');
                 document.querySelector('button[type="submit"]').disabled = false;
@@ -329,7 +327,6 @@
             }
         });
 
-        // Drag and drop functionality
         const dropZone = document.querySelector('.file-input-label');
         
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
