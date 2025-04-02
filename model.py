@@ -7,7 +7,7 @@ class TextRecognitionModel(nn.Module):
     def __init__(self, num_classes, hidden_size=768, num_heads=8, num_layers=6):
         super(TextRecognitionModel, self).__init__()
         
-        # CNN Feature Extractor
+        # Extracting the CNN features
         self.cnn = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=3, padding=1),
             nn.ReLU(),
@@ -23,7 +23,7 @@ class TextRecognitionModel(nn.Module):
             nn.MaxPool2d(2),
         )
         
-        # Vision Transformer
+        # implementing the Vision Transformer
         self.vit_config = ViTConfig(
             image_size=224,
             patch_size=16,
@@ -39,14 +39,13 @@ class TextRecognitionModel(nn.Module):
         )
         self.vit = ViTModel(self.vit_config)
         
-        # Self-supervised head
+        # this code is for self supervised head
         self.ssl_head = nn.Sequential(
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, hidden_size)
         )
         
-        # OCR head
         self.ocr_head = nn.Sequential(
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
@@ -55,10 +54,10 @@ class TextRecognitionModel(nn.Module):
         )
         
     def forward(self, x, ssl_mode=False):
+        
         # CNN feature extraction
         cnn_features = self.cnn(x)
         
-        # Reshape for ViT
         batch_size = cnn_features.size(0)
         cnn_features = cnn_features.permute(0, 2, 3, 1)
         cnn_features = cnn_features.reshape(batch_size, -1, 512)
@@ -71,7 +70,6 @@ class TextRecognitionModel(nn.Module):
             ssl_features = self.ssl_head(vit_output[:, 0])  # Use [CLS] token
             return ssl_features
         else:
-            # OCR path
             ocr_features = self.ocr_head(vit_output[:, 0])  # Use [CLS] token
             return ocr_features
 
