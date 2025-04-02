@@ -20,23 +20,20 @@ class OCRDataset(Dataset):
         self.image_paths = []
         self.texts = []
         
-        # Create a temporary directory for extracted files
+        # Creating a temporary directory for extracted files
         self.temp_dir = tempfile.mkdtemp()
         print(f"Created temporary directory: {self.temp_dir}")
         
-        # Extract zip file to temporary directory
+        # this Extracts zip file to temporary directory
         print(f"Extracting zip file: {zip_path}")
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(self.temp_dir)
-        
-        # Process the extracted files
+    
         self._process_files(self.temp_dir)
-        
-        # Print dataset statistics
         print(f"Total samples loaded: {len(self.image_paths)}")
     
     def _process_files(self, extract_dir):
-        # Walk through the extracted directory
+        # Will go through the extracted directory
         for root, _, files in os.walk(extract_dir):
             for file in files:
                 if file.lower().endswith('.pdf'):
@@ -44,7 +41,7 @@ class OCRDataset(Dataset):
                     print(f"Processing PDF: {file}")
                     self._process_pdf(pdf_path)
                 elif file.lower().endswith(('.png', '.jpg', '.jpeg')):
-                    # Handle regular image files
+            
                     text_file = os.path.splitext(file)[0] + '.txt'
                     text_path = os.path.join(root, text_file)
                     
@@ -55,18 +52,14 @@ class OCRDataset(Dataset):
     
     def _process_pdf(self, pdf_path):
         try:
-            # Open the PDF
             doc = fitz.open(pdf_path)
             
-            # Process each page
             for page_num in range(len(doc)):
                 try:
                     page = doc[page_num]
-                    
-                    # Extract text
                     text = page.get_text()
                     
-                    # Extract image with lower resolution to save space
+                    # Extracts image with lower resolution to save space
                     pix = page.get_pixmap(matrix=fitz.Matrix(150/72, 150/72))  # 150 DPI instead of 300
                     
                     # Convert to numpy array directly instead of saving to disk
@@ -75,18 +68,18 @@ class OCRDataset(Dataset):
                     )
                     
                     # Store the extracted data
-                    if text.strip():  # Only store if there's text content
+                    if text.strip():                                                 # Only store if there's text content
                         # Convert to RGB if needed
-                        if pix.n == 1:  # Grayscale
+                        if pix.n == 1:  
                             img_array = cv2.cvtColor(img_array, cv2.COLOR_GRAY2RGB)
-                        elif pix.n == 4:  # RGBA
+                        elif pix.n == 4:  
                             img_array = cv2.cvtColor(img_array, cv2.COLOR_RGBA2RGB)
                         
                         # Store the image array and text
                         self.image_paths.append(img_array)
                         self.texts.append(text.strip())
                     
-                    # Clear memory
+                    # this code is written to clean the memory if it is full to perform task effeciently
                     del pix
                     del img_array
                     gc.collect()
