@@ -16,8 +16,8 @@ def train_ssl(model, train_loader, optimizer, contrastive_loss, device, epoch, w
     pbar = tqdm(train_loader, desc=f'SSL Epoch {epoch}')
     for batch_idx, (images, _) in enumerate(pbar):
         images = images.to(device)
-        
-        # Get features for contrastive learning
+
+        #to get features for contrastive learning 
         features = model(images, ssl_mode=True)
         loss = contrastive_loss(features)
         
@@ -92,29 +92,26 @@ def validate(model, val_loader, criterion, device, epoch, writer):
     return total_loss / len(val_loader), accuracy
 
 def main():
-    # Hyperparameters
     num_classes = 1000  # Adjust based on your dataset
     batch_size = 32
     num_epochs = 50
     learning_rate = 1e-4
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    # Create model
+    # creating the model
     model = TextRecognitionModel(num_classes=num_classes).to(device)
     
-    # Create data loaders
     train_loader, val_loader = create_data_loaders(
         'OneDrive_2025-04-01.zip',
         'OneDrive_2025-04-01 (1).zip',
         batch_size=batch_size
     )
     
-    # Create optimizers and loss functions
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
     criterion = nn.CrossEntropyLoss()
     contrastive_loss = ContrastiveLoss()
     
-    # Create tensorboard writer
+    
     writer = SummaryWriter('runs/ocr_training')
     
     # Self-supervised pre-training
@@ -123,7 +120,6 @@ def main():
         ssl_loss = train_ssl(model, train_loader, optimizer, contrastive_loss, device, epoch, writer)
         print(f'SSL Epoch {epoch}: Loss = {ssl_loss:.4f}')
     
-    # Supervised fine-tuning
     print("Starting supervised fine-tuning...")
     best_accuracy = 0
     for epoch in range(num_epochs):
@@ -134,7 +130,6 @@ def main():
         print(f'Train Loss = {train_loss:.4f}, Train Acc = {train_acc:.4f}')
         print(f'Val Loss = {val_loss:.4f}, Val Acc = {val_acc:.4f}')
         
-        # Save best model
         if val_acc > best_accuracy:
             best_accuracy = val_acc
             torch.save(model.state_dict(), 'best_model.pth')
