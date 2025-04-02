@@ -11,7 +11,6 @@ from PIL import Image
 import pytesseract
 import re
 
-# Set Tesseract path
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 app = Flask(__name__)
@@ -22,7 +21,7 @@ def clean_text(text):
     """Clean and normalize extracted text"""
     # Remove extra whitespace
     text = re.sub(r'\s+', ' ', text)
-    # Remove special characters but keep basic punctuation
+    # Removes special characters but keep basic punctuation
     text = re.sub(r'[^\w\s.,!?-]', '', text)
     # Normalize line endings
     text = text.replace('\r\n', '\n').replace('\r', '\n')
@@ -35,7 +34,6 @@ def process_pdf(file_path):
         text = ""
         
         for i, page in enumerate(doc):
-            # Get text from PDF
             pdf_text = page.get_text()
             text += f"Page {i+1}:\n{pdf_text}\n\n"
         
@@ -55,17 +53,17 @@ def process_image(file_path):
         # Convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
-        # Apply thresholding to preprocess the image
+        # Applying thresholding to preprocess the image
         gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
         
-        # Apply dilation to connect text components
+        # Applying dilation to connect text components
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
         gray = cv2.dilate(gray, kernel, iterations=1)
         
-        # Apply median blur to remove noise
+        # Applying median blur to remove noise
         gray = cv2.medianBlur(gray, 3)
         
-        # Apply OCR
+        # Applying OCR
         text = pytesseract.image_to_string(gray)
         
         return clean_text(text)
@@ -79,6 +77,7 @@ def process_zip(file_path):
         with zipfile.ZipFile(file_path, 'r') as zip_ref:
             for file_info in zip_ref.filelist:
                 if file_info.filename.lower().endswith(('.pdf', '.png', '.jpg', '.jpeg')):
+                    
                     # Extract file to temporary location
                     temp_path = os.path.join(app.config['UPLOAD_FOLDER'], file_info.filename)
                     zip_ref.extract(file_info, app.config['UPLOAD_FOLDER'])
@@ -94,7 +93,7 @@ def process_zip(file_path):
                             'text': text
                         })
                     finally:
-                        # Clean up temporary file
+                        # this Cleans the temporary file
                         if os.path.exists(temp_path):
                             os.remove(temp_path)
         
